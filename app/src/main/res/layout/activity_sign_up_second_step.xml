@@ -1,0 +1,38 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+
+    tools:context="cn.daixiaodong.myapp.activity.SignUpSecondStepActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/id_et_sign_up_second_step_verify_code"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number"
+            android:maxLength="6"
+            android:hint="@string/pleaseInputVerifyCode" />
+
+        <Button
+            android:id="@+id/id_btn_sign_up_second_step_get_verify_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/get_verify_code_again" />
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/id_btn_sign_up_second_step_done"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/common_pay_button_green"
+        android:text="@string/done" />
+
+</LinearLayout>
