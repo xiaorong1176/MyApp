@@ -1,8 +1,11 @@
 package cn.daixiaodong.myapp.activity;
 
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,6 +15,13 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+
+import com.avos.avoscloud.AVInstallation;
+import com.avos.avoscloud.PushService;
+import com.avos.avoscloud.feedback.FeedbackAgent;
+import com.bmob.pay.tool.BmobPay;
+import com.umeng.update.UmengUpdateAgent;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
@@ -21,10 +31,13 @@ import java.util.ArrayList;
 
 import cn.daixiaodong.myapp.R;
 import cn.daixiaodong.myapp.activity.common.BaseActivity;
+import cn.daixiaodong.myapp.db.TestDatabase;
 import cn.daixiaodong.myapp.fragment.CollectFragment;
+import cn.daixiaodong.myapp.fragment.FollowFragment;
 import cn.daixiaodong.myapp.fragment.HomeFragment;
 import cn.daixiaodong.myapp.fragment.MessageFragment;
 import cn.daixiaodong.myapp.fragment.SettingsFragment;
+import cn.daixiaodong.myapp.receiver.PushBroadcastReceiver;
 
 
 /**
@@ -33,7 +46,11 @@ import cn.daixiaodong.myapp.fragment.SettingsFragment;
 @EActivity(R.layout.activity_main)
 public class MainActivity extends BaseActivity {
 
-    private int mCurrentPosition = R.id.navigation_item_1;
+
+
+    private int mCurrentPosition = R.id.action_home;
+
+    public static final String BROAD_RECEIVER_ACTION = "broad_receiver";
 
     @ViewById(R.id.id_tb_toolbar)
     Toolbar mViewToolbar;
@@ -58,13 +75,27 @@ public class MainActivity extends BaseActivity {
             mFragments = (ArrayList<Fragment>) savedInstanceState.getSerializable("list");
             Log.i("tag", savedInstanceState.toString());
         }
+        if (BROAD_RECEIVER_ACTION.equals(getIntent().getAction())) {
+            Bundle bundle = getIntent().getBundleExtra(PushBroadcastReceiver.BROAD_DATA_KEY);
+            String title = bundle.getString("title");
+            Log.i(BROAD_RECEIVER_ACTION, title);
+        }
+
+        AVInstallation.getCurrentInstallation().saveInBackground();
+        PushService.setDefaultPushCallback(this, MainActivity_.class);
+        FeedbackAgent agent = new FeedbackAgent(this);
+        agent.sync();
+        UmengUpdateAgent.update(this);
+        BmobPay.init(this, "87c9c0ad96fabf08616bbbc095fe7ef5");
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+        //outState.putSerializable("list", mFragments);
         Log.i("tag", "onSaveInstanceState");
-        outState.putSerializable("list", mFragments);
+        super.onSaveInstanceState(outState);
+        //
+
     }
 
     @AfterViews
@@ -73,10 +104,14 @@ public class MainActivity extends BaseActivity {
         // initData();
         initToolbar();
         initNav();
-        setCurrentFragment("首页", R.id.navigation_item_1);
+        setCurrentFragment("首页", R.id.action_home);
         Log.i("tag", "Activity被创建了");
         //Log.i("Fragment",)
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean message_push = sharedPref.getBoolean(SettingsFragment.KEY_MESSAGE_PUSH, true);
+        Log.i("message",message_push+"");
 
+        TestDatabase.testAdd(this);
     }
 
     private void initData() {
@@ -84,9 +119,28 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initNav() {
+         mViewNav.findViewById(R.id.id_iv_profile_photo).setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+                 showToast("点击有效");
+             }
+         });
         mViewNav.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
+
+                mDrawerLayout.closeDrawer(GravityCompat.START);
+
+                if (menuItem.getItemId() == R.id.action_feedback) {
+                    FeedbackAgent agent = new FeedbackAgent(MainActivity.this);
+                    agent.startDefaultThreadActivity();
+                    return true;
+                }
+                if( menuItem.getItemId() == R.id.action_settings){
+                    startActivity(new Intent(MainActivity.this,SettingsActivity.class));
+                    return true;
+                }
+
                 if (mCurrentPosition != menuItem.getItemId()) {
 
                     setCurrentFragment(menuItem.getTitle().toString(), menuItem.getItemId());
@@ -95,7 +149,6 @@ public class MainActivity extends BaseActivity {
                     menuItem.setChecked(true);
                 }
 
-                mDrawerLayout.closeDrawer(GravityCompat.START);
                 return true;
             }
         });
@@ -105,12 +158,17 @@ public class MainActivity extends BaseActivity {
         mViewToolbar.setTitle(s);
     }
 
+
+    /**
+     * 设置Toolbar，设置标题，设置Drawer导航
+     */
     private void initToolbar() {
         setSupportActionBar(mViewToolbar);
         ActionBarDrawerToggle mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mViewToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         mDrawerToggle.syncState();
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mViewToolbar.setTitleTextColor(Color.WHITE);
+        mViewToolbar.setTitle("首页");
     }
 
 
@@ -129,28 +187,35 @@ public class MainActivity extends BaseActivity {
         if (mCurrentFragment == null) {
             switch (itemId) {
                 // 首页
-                case R.id.navigation_item_1:
+                case R.id.action_home:
                     Log.i("tag", "case 0");
                     mCurrentFragment = new HomeFragment();
                     break;
                 // 收藏
-                case R.id.navigation_item_2:
+                case R.id.action_collect:
                     Log.i("tag", "case 1");
                     mCurrentFragment = new CollectFragment();
                     break;
                 // 消息
-                case R.id.navigation_item_3:
+                case R.id.action_message:
                     Log.i("tag", "case 2");
                     mCurrentFragment = new MessageFragment();
                     break;
+                case R.id.action_follow:
+                    Log.i("tag","action follow");
+                    mCurrentFragment = new FollowFragment();
 
-                // 设置
+                    break;
+
+           /*     // 设置
                 case R.id.navigation_item_4:
                     Log.i("tag", "case 3");
                     mCurrentFragment = new SettingsFragment();
-                    break;
+                    break;*/
+
 
             }
+
 
             // 将mCurrentFragment对象引用压入fragment管理栈
             fragmentManager.beginTransaction().add(R.id.id_layout_content_container, mCurrentFragment, title).commit();
@@ -163,4 +228,18 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+            case R.id.action_search:
+                if(mDrawerLayout.isDrawerOpen(GravityCompat.START)){
+                    mDrawerLayout.closeDrawer(GravityCompat.START);
+                }
+                startActivity(new Intent(this, SearchActivity.class));
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

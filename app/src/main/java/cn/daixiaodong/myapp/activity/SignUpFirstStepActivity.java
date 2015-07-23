@@ -1,6 +1,9 @@
 package cn.daixiaodong.myapp.activity;
 
+import android.graphics.Color;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -17,11 +20,14 @@ import cn.daixiaodong.myapp.R;
 import cn.daixiaodong.myapp.activity.common.BaseActivity;
 
 /**
- *  用户通过手机号码注册界面
+ * 用户通过手机号码注册界面
  */
 @EActivity(R.layout.activity_sign_up_first_step)
 public class SignUpFirstStepActivity extends BaseActivity {
 
+
+    @ViewById(R.id.id_tb_toolbar)
+    Toolbar mViewToolbar;
 
     @ViewById(R.id.id_et_phone_number)
     EditText mViewPhoneNumber;
@@ -47,8 +53,9 @@ public class SignUpFirstStepActivity extends BaseActivity {
 
     /**
      * 通过手机号注册
+     *
      * @param phoneNumber 手机号
-     * @param password 密码
+     * @param password    密码
      */
     private void signUpByPhoneNumber(String phoneNumber, String password) {
 
@@ -56,7 +63,7 @@ public class SignUpFirstStepActivity extends BaseActivity {
         user.setUsername(phoneNumber); // 暂时设置用户名为手机号码
         user.setPassword(password);
         user.setMobilePhoneNumber(phoneNumber);
-        Log.i("tag",phoneNumber);
+        Log.i("tag", phoneNumber);
         user.signUpInBackground(new SignUpCallback() {
             @Override
             public void done(AVException e) {
@@ -97,5 +104,22 @@ public class SignUpFirstStepActivity extends BaseActivity {
             return false;
         }
         return true;
+    }
+
+
+    /**
+     * 设置Toolbar，设置标题，设置Drawer导航
+     */
+    private void initToolbar() {
+        setSupportActionBar(mViewToolbar);
+        mViewToolbar.setTitleTextColor(Color.WHITE);
+        mViewToolbar.setTitle("注册");
+        mViewToolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_48dp);
+        mViewToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 }

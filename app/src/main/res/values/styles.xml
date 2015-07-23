@@ -4,11 +4,20 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <!-- Actionbar 颜色  Toolbar设置的是Actionbar的颜色 -->
-        <item name="colorPrimary">#66cc99</item>
+      <!--  <item name="colorPrimary">#66cc99</item>-->
         <!-- 状态栏颜色 -->
+<!--
         <item name="colorPrimaryDark">#66cc99</item>
+-->
         <!-- 箭头样式风格 -->
+
+
+        <item name="colorPrimary">#2196F3</item>
+        <item name="colorPrimaryDark">#1565C0</item>
+        <item name="colorAccent">#FFFFFF</item>
         <item name="drawerArrowStyle">@style/AppTheme.MyDrawerArrowStyle</item>
+        <item name="colorControlNormal">@android:color/white</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
 
     </style>
 
@@ -24,6 +33,8 @@
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
     </style>
+
+
 
     <style name="Widget.CardContent" parent="android:Widget">
         <item name="android:paddingLeft">16dp</item>

@@ -26,6 +26,8 @@
             android:layout_height="match_parent"
             android:layout_gravity="start"
             app:headerLayout="@layout/left_menu_header"
-            app:menu="@menu/my_navigation_items" />
+            app:itemTextColor="@color/menu_item_text_color"
+            app:menu="@menu/my_navigation_items"
+            app:theme="@style/Widget.Design.TabLayout" />
     </android.support.v4.widget.DrawerLayout>
 </LinearLayout>

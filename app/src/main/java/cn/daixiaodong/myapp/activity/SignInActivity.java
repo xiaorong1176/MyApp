@@ -1,5 +1,8 @@
 package cn.daixiaodong.myapp.activity;
 
+import android.graphics.Color;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -9,8 +12,10 @@ import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.LogInCallback;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
 
 import cn.daixiaodong.myapp.R;
@@ -22,6 +27,10 @@ import cn.daixiaodong.myapp.utils.NetworkUtil;
  */
 @EActivity(R.layout.activity_sign_in)
 public class SignInActivity extends BaseActivity {
+
+    @ViewById(R.id.id_tb_toolbar)
+    Toolbar mViewToolbar;
+
 
     @ViewById(R.id.id_et_phone_number)
     EditText mViewPhoneNumber;
@@ -39,11 +48,19 @@ public class SignInActivity extends BaseActivity {
     @ViewById(R.id.id_tv_forgot_password)
     TextView mViewForgotPassword;
 
+
+    @Extra("log_in_toward")
+    int LogInToward;
+
     @Click(R.id.id_btn_sign_up_now)
     void signUp() {
         SignUpFirstStepActivity_.intent(this).start();
     }
 
+    @AfterViews
+    void init(){
+        initToolbar();
+    }
 
     @Click(R.id.id_btn_sign_in)
     void signIn() {
@@ -77,11 +94,16 @@ public class SignInActivity extends BaseActivity {
         AVUser.loginByMobilePhoneNumberInBackground(phoneNumber, password, new LogInCallback<AVUser>() {
             @Override
             public void done(AVUser avUser, AVException e) {
-                if(e == null){
+                if (e == null) {
                     showToast("登录成功");
-                    MainActivity_.intent(SignInActivity.this).start();
+
+                    switch (LogInToward){
+                        case 0:
+                            CreateDreamActivity_.intent(SignInActivity.this).start();
+                            break;
+                    }
                     finish();
-                }else{
+                } else {
                     e.printStackTrace();
                 }
             }
@@ -109,5 +131,22 @@ public class SignInActivity extends BaseActivity {
             return false;
         }
         return true;
+    }
+
+
+    /**
+     *  设置Toolbar，设置标题，设置Drawer导航
+     */
+    private void initToolbar() {
+        setSupportActionBar(mViewToolbar);
+        mViewToolbar.setTitleTextColor(Color.WHITE);
+        mViewToolbar.setTitle("登录");
+        mViewToolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_48dp);
+        mViewToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 }

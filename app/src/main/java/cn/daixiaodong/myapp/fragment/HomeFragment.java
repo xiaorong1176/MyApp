@@ -11,8 +11,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.avos.avoscloud.AVUser;
+
 import cn.daixiaodong.myapp.R;
-import cn.daixiaodong.myapp.activity.CreateDreamActivity_;
 import cn.daixiaodong.myapp.adapter.ViewPagerAdapter;
 import cn.daixiaodong.myapp.fragment.common.BaseFragment;
 
@@ -41,13 +42,12 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        //init();  无效
+        init();
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        init();
     }
 
     void init() {
@@ -65,15 +65,29 @@ public class HomeFragment extends BaseFragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch (item.getItemId()){
-            case R.id.action_create:
-                CreateDreamActivity_.intent(getActivity()).start();
-                break;
+        switch (item.getItemId()) {
+            /*case R.id.action_create:
+                AVAnalytics.onEvent(getActivity(), "create_dream");
+                if (!checkUserStatus()) {
+                    SignInActivity_.intent(getActivity()).extra("log_in_toward", 0).start();
+                } else {
+                    CreateDreamActivity_.intent(getActivity()).start();
+                }
+                break;*/
+        /*    case R.id.action_search:
+                startActivity(new Intent(getActivity(), SearchActivity.class));
+                break;*/
         }
         return true;
     }
 
+    private Boolean checkUserStatus() {
+        AVUser user = AVUser.getCurrentUser();
+        return user != null;
+    }
+
     private void setupViewPager(ViewPager viewPager) {
+
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
         viewPager.setOffscreenPageLimit(3);
         adapter.addFragment(new DreamListFragment(), "首页");
@@ -81,5 +95,6 @@ public class HomeFragment extends BaseFragment {
         adapter.addFragment(new CreateListFragment(), "我发起的");
         viewPager.setAdapter(adapter);
     }
+
 
 }

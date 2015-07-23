@@ -6,4 +6,7 @@
     <color name="refresh_progress_2">#00b0ff</color>
     <color name="refresh_progress_3">@color/theme_primary</color>
 
+
+
+
 </resources>
